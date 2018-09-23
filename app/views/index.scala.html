@@ -1,0 +1,37 @@
+@(applicationServerKey: String)
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <title>webpush-testing-service</title>
+        <script src="view.js"></script>
+        <script src="app.js"></script>
+    </head>
+    <body>
+        <input type="button" id="subscribe" value="Subscribe">
+        <input type="button" id="unsubscribe" value="Unsubscribe">
+
+        <br>
+
+        <label for="endpoint">endpoint</label>
+        <textarea id="endpoint" readonly></textarea>
+        <input type="button" id="copy-endpoint" value="Copy Endpoint">
+
+        <br>
+
+        <label for="auth">auth</label>
+        <textarea id="auth" readonly></textarea>
+        <input type="button" id="copy-auth" value="Copy Auth">
+
+        <br>
+
+        <label for="p256dh">p256dh</label>
+        <textarea id="p256dh" readonly></textarea>
+        <input type="button" id="copy-p256dh" value="Copy P256dh">
+
+        <br>
+
+        <label for="application-server-key">applicationServerKey</label>
+        <textarea id="application-server-key" readonly>@applicationServerKey</textarea>
+    </body>
+</html>

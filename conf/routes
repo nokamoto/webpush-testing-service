@@ -1,1 +1,5 @@
 GET / controllers.Application.index
+
+GET /app.js             controllers.Assets.at(path = "/public", file = "javascripts/app.js")
+GET /serviceworker.js   controllers.Assets.at(path = "/public", file = "javascripts/serviceworker.js")
+GET /view.js            controllers.Assets.at(path = "/public", file = "javascripts/view.js")
