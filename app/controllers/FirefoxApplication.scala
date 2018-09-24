@@ -4,7 +4,6 @@ import javax.inject.Inject
 import models.PushSubscription
 import modules.BrowserModule.TestingBrowser
 import org.openqa.selenium.By
-import org.openqa.selenium.chrome.ChromeDriver
 import org.openqa.selenium.firefox.FirefoxDriver
 import org.openqa.selenium.firefox.FirefoxProfile
 import org.openqa.selenium.remote.DesiredCapabilities
