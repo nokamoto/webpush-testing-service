@@ -1,10 +1,7 @@
 package controllers
 
 import modules.ApplicationServerKeyModule.ApplicationServerKey
-import org.openqa.selenium.WebDriver
-import org.openqa.selenium.htmlunit.HtmlUnitDriver
 import org.scalatest.FlatSpec
-import org.scalatest.selenium.WebBrowser
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
 
@@ -18,9 +15,4 @@ class ApplicationSpec extends FlatSpec {
 
     assert(status(res) === OK)
   }
-}
-
-class test extends FlatSpec with WebBrowser {
-  implicit val webDriver: WebDriver = new HtmlUnitDriver
-
 }
