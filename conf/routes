@@ -1,4 +1,6 @@
-GET / controllers.Application.index
+GET /   controllers.Application.index
+
+POST    /testing/firefox/subscribe.json     controllers.FirefoxApplication.subscribe
 
 GET /app.js             controllers.Assets.at(path = "/public", file = "javascripts/app.js")
 GET /serviceworker.js   controllers.Assets.at(path = "/public", file = "javascripts/serviceworker.js")
