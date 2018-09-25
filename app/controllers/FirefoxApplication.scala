@@ -5,6 +5,7 @@ import models.PushSubscription
 import modules.BrowserModule.TestingBrowser
 import org.openqa.selenium.By
 import org.openqa.selenium.firefox.FirefoxDriver
+import org.openqa.selenium.firefox.FirefoxOptions
 import org.openqa.selenium.firefox.FirefoxProfile
 import org.openqa.selenium.remote.DesiredCapabilities
 import play.api.Logger
@@ -23,11 +24,9 @@ class FirefoxApplication @Inject()(browser: TestingBrowser,
                                    cc: ControllerComponents)
     extends AbstractController(cc) {
   private[this] def withDriver[A](f: FirefoxDriver => A): A = {
-    val profile = new FirefoxProfile()
-    profile.setPreference("permissions.default.desktop-notification", 1)
-    val cap = DesiredCapabilities.firefox()
-    cap.setCapability(FirefoxDriver.PROFILE, profile)
-    val driver = new FirefoxDriver(cap)
+    val options = new FirefoxOptions()
+    options.addPreference("permissions.default.desktop-notification", 1)
+    val driver = new FirefoxDriver(options)
     try {
       f(driver)
     } finally {

@@ -13,7 +13,7 @@ PB.targets in Compile := Seq(
 
 libraryDependencies ++= Seq(
   guice,
-  "org.seleniumhq.selenium" % "selenium-java" % "2.35.0",
+  "org.seleniumhq.selenium" % "selenium-java" % "3.14.0",
   "com.thesamet.scalapb" %% "scalapb-runtime" % scalapb.compiler.Version.scalapbVersion % "protobuf",
   "org.scalatestplus.play" %% "scalatestplus-play" % "3.1.2" % Test
 )
