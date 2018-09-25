@@ -18,9 +18,37 @@ jobs:
           command: sbt scalafmt::test test:scalafmt::test sbt:scalafmt::test
       - run:
           command: xvfb-run sbt test
+      - run:
+          command: sbt universal:packageZipTarball
       - save_cache:
           key: sbt-cache-v2
           paths:
             - "~/.ivy2/cache"
             - "~/.sbt"
             - "~/.m2"
+      - save_cache:
+          key: sbt-universal-{{ .Revision }}
+          paths:
+            - "target/universal"
+  dist:
+    docker:
+      - image: docker:18.06.0-ce-git
+    steps:
+      - checkout
+      - setup_remote_docker:
+          docker_layer_caching: true
+      - restore_cache:
+          key: sbt-universal-{{ .Revision }}
+      - run:
+          name: Docker build & push
+          command: |
+            docker login -u $DOCKER_USER -p $DOCKER_PASS
+            ./build.sh --push
+workflows:
+  version: 2
+  ci:
+    jobs:
+      - build
+      - dist:
+          requires:
+            - build
