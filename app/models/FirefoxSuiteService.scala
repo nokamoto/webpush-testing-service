@@ -1,4 +1,5 @@
 package models
+
 import models.Suite.SuiteID
 import org.openqa.selenium.WebDriver
 import org.openqa.selenium.firefox.FirefoxDriver

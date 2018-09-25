@@ -1,7 +1,9 @@
 GET /   controllers.Application.index
 
-POST    /testing        controllers.SuiteApplication.start
-DELETE  /testing/:id    controllers.SuiteApplication.quit(id: String)
+POST    /testing            controllers.SuiteApplication.start
+GET     /testing/:id        controllers.SuiteApplication.get(id: String)
+DELETE  /testing/:id        controllers.SuiteApplication.quit(id: String)
+POST    /testing/:id/events controllers.SuiteApplication.addEvent(id: String)
 
 GET /app.js             controllers.Assets.at(path = "/public", file = "javascripts/app.js")
 GET /serviceworker.js   controllers.Assets.at(path = "/public", file = "javascripts/serviceworker.js")

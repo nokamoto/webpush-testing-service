@@ -13,7 +13,17 @@ class SuiteApplicationSpec
     with GuiceOneServerPerTest
     with FutureAwaits
     with DefaultAwaitTimeout {
-  "SuiteApplication start and quit" in {
+  private[this] def get(id: String): Suite = {
+    val ws = app.injector.instanceOf[WSClient]
+    val found = await(ws.url(s"http://localhost:$port/testing/$id").get())
+
+    found.status mustBe 200
+    noException should be thrownBy Json.parse(found.body).as[Suite]
+
+    Json.parse(found.body).as[Suite]
+  }
+
+  "SuiteApplication all" in {
     val ws = app.injector.instanceOf[WSClient]
     val start = await(
       ws.url(s"http://localhost:$port/testing")
@@ -28,9 +38,23 @@ class SuiteApplicationSpec
     suite.subscription.auth must not be empty
     suite.subscription.auth must not be empty
 
+    get(suite.id) mustBe suite
+
+    val data = "test event"
+    val event = await(
+      ws.url(s"http://localhost:$port/testing/${suite.id}/events").post(data))
+
+    event.status mustBe 200
+    get(suite.id).events mustBe data :: Nil
+
     val quit =
       await(ws.url(s"http://localhost:$port/testing/${suite.id}").delete())
 
     quit.status mustBe 204
+
+    val removed =
+      await(ws.url(s"http://localhost:$port/testing/${suite.id}").get())
+
+    removed.status mustBe 404
   }
 }

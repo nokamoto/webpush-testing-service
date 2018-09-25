@@ -51,7 +51,7 @@ abstract class SuiteService(m: TrieMap[SuiteID, SuiteDriver]) {
         Logger.info(s"$id: subscription=${Json.toJson(v)}")
 
         val suite = SuiteDriver(
-          suite = Suite(id = id, subscription = v, logs = List.empty),
+          suite = Suite(id = id, subscription = v, events = List.empty),
           driver = driver)
         m.putIfAbsent(id, suite)
           .foreach(duplicated =>
@@ -64,9 +64,20 @@ abstract class SuiteService(m: TrieMap[SuiteID, SuiteDriver]) {
   }
 
   def quit(id: SuiteID): Unit = {
-    println(s"$id: quit")
+    Logger.info(s"$id: quit")
     m.remove(id).foreach { suite =>
       suite.driver.quit()
     }
+  }
+
+  def get(id: SuiteID): Option[Suite] = m.get(id).map(_.suite)
+
+  def addEvent(id: SuiteID, event: String): Unit = {
+    Logger.info(s"$id: add $event")
+    val prev =
+      m.getOrElse(id, throw new NoSuchElementException(s"suite $id not found"))
+    m.update(
+      id,
+      prev.copy(suite = prev.suite.copy(events = event :: prev.suite.events)))
   }
 }
