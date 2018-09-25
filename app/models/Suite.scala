@@ -6,7 +6,7 @@ import play.api.libs.json.OFormat
 
 case class Suite(id: SuiteID,
                  subscription: PushSubscription,
-                 logs: List[String])
+                 events: List[String])
 
 object Suite {
   type SuiteID = String
