@@ -1,5 +1,9 @@
 scalaVersion := "2.12.6"
 
+name := "webpush-testing-service"
+
+version := IO.readLines(file("./VERSION")).head
+
 enablePlugins(PlayScala)
 
 PB.protoSources in Compile := (file("webpush-protobuf/webpush/protobuf").getCanonicalFile * AllPassFilter).get
