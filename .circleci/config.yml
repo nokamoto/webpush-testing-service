@@ -10,11 +10,6 @@ jobs:
           command: apt-get install -y git
       - checkout
       - run:
-          name: Checkout submodule
-          command: |
-            git submodule init
-            git submodule update --remote
-      - run:
           command: sbt scalafmtCheck scalafmtSbtCheck test:scalafmtCheck
       - run:
           command: xvfb-run sbt test
