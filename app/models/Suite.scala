@@ -5,6 +5,7 @@ import play.api.libs.json.Json
 import play.api.libs.json.OFormat
 
 case class Suite(id: SuiteID,
+                 driver: String,
                  subscription: PushSubscription,
                  events: List[String])
 

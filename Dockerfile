@@ -1,4 +1,4 @@
-FROM nokamoto13/geckodriver-scala:0.0.0
+FROM nokamoto13/webdriver-scala:0.0.0
 
 ARG VERSION
 ARG APP=webpush-testing-service

@@ -2,17 +2,39 @@ package models
 
 import java.util.UUID
 
+import models.Driver.Chrome
+import models.Driver.Firefox
 import models.Suite.SuiteID
 import org.openqa.selenium.By
 import org.openqa.selenium.WebDriver
+import org.openqa.selenium.chrome.ChromeDriver
+import org.openqa.selenium.chrome.ChromeOptions
+import org.openqa.selenium.firefox.FirefoxDriver
+import org.openqa.selenium.firefox.FirefoxOptions
 import play.api.Logger
 import play.api.libs.json.Json
 
 import scala.collection.concurrent.TrieMap
 import scala.concurrent.duration.FiniteDuration
+import scala.collection.JavaConverters._
 
-abstract class SuiteService(m: TrieMap[SuiteID, SuiteDriver]) {
-  protected[this] def newDriver(): WebDriver
+class SuiteService(m: TrieMap[SuiteID, SuiteDriver]) {
+  private[this] def firefox(): FirefoxDriver = {
+    val options = new FirefoxOptions()
+    options.addPreference("permissions.default.desktop-notification", 1)
+    new FirefoxDriver(options)
+  }
+
+  private[this] def chrome(): ChromeDriver = {
+    val options = new ChromeOptions()
+    options.setExperimentalOption(
+      "prefs",
+      Map("profile.default_content_setting_values.notifications" -> 1).asJava)
+    // https://stackoverflow.com/questions/50642308/org-openqa-selenium-webdriverexception-unknown-error-devtoolsactiveport-file-d
+    options.addArguments("--disable-dev-shm-usage")
+    options.addArguments("--no-sandbox")
+    new ChromeDriver(options)
+  }
 
   private[this] def ready(driver: WebDriver,
                           timeout: FiniteDuration,
@@ -33,7 +55,10 @@ abstract class SuiteService(m: TrieMap[SuiteID, SuiteDriver]) {
     Some(PushSubscription(endpoint = endpoint, auth = auth, p256dh = p256dh))
   }
 
-  def start(url: String, timeout: FiniteDuration): Suite = {
+  private[this] def start(url: String,
+                          timeout: FiniteDuration,
+                          name: Driver,
+                          newDriver: () => WebDriver): Suite = {
     val id = UUID.randomUUID().toString
     val driver = newDriver()
 
@@ -50,9 +75,11 @@ abstract class SuiteService(m: TrieMap[SuiteID, SuiteDriver]) {
       case Some(v) =>
         Logger.info(s"$id: subscription=${Json.toJson(v)}")
 
-        val suite = SuiteDriver(
-          suite = Suite(id = id, subscription = v, events = List.empty),
-          driver = driver)
+        val suite = SuiteDriver(suite = Suite(id = id,
+                                              driver = name.value,
+                                              subscription = v,
+                                              events = List.empty),
+                                driver = driver)
         m.putIfAbsent(id, suite)
           .foreach(duplicated =>
             throw new RuntimeException(s"duplicated suite id: $duplicated"))
@@ -60,6 +87,13 @@ abstract class SuiteService(m: TrieMap[SuiteID, SuiteDriver]) {
 
       case None =>
         throw new RuntimeException(s"operation timed out $timeout")
+    }
+  }
+
+  def start(url: String, timeout: FiniteDuration, driver: Driver): Suite = {
+    driver match {
+      case Firefox => start(url, timeout, driver, () => firefox())
+      case Chrome  => start(url, timeout, driver, () => chrome())
     }
   }
 
