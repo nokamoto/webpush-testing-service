@@ -1,5 +1,8 @@
 package controllers
 
+import models.Driver.Chrome
+import models.Driver.Firefox
+import models.Driver
 import models.Suite
 import org.scalatestplus.play.PlaySpec
 import org.scalatestplus.play.guice.GuiceOneServerPerTest
@@ -23,38 +26,52 @@ class SuiteApplicationSpec
     Json.parse(found.body).as[Suite]
   }
 
-  "SuiteApplication all" in {
+  private[this] def test(driver: Driver): Unit = {
+    s"SuiteApplication all $driver" in {
+      val ws = app.injector.instanceOf[WSClient]
+      val start = await(
+        ws.url(s"http://localhost:$port/testing/${driver.value}")
+          .post(Json.obj()))
+
+      start.status mustBe 201
+      noException should be thrownBy Json.parse(start.body).as[Suite]
+
+      val suite = Json.parse(start.body).as[Suite]
+      suite.id must not be empty
+      suite.subscription.endpoint must not be empty
+      suite.subscription.auth must not be empty
+      suite.subscription.auth must not be empty
+
+      get(suite.id) mustBe suite
+
+      val data = "test event"
+      val event = await(
+        ws.url(s"http://localhost:$port/testing/${suite.id}/events").post(data))
+
+      event.status mustBe 200
+      get(suite.id).events mustBe data :: Nil
+
+      val quit =
+        await(ws.url(s"http://localhost:$port/testing/${suite.id}").delete())
+
+      quit.status mustBe 204
+
+      val removed =
+        await(ws.url(s"http://localhost:$port/testing/${suite.id}").get())
+
+      removed.status mustBe 404
+    }
+  }
+
+  test(Firefox)
+  test(Chrome)
+
+  "SuiteApplication#start returns 404 if undefined driver name" in {
     val ws = app.injector.instanceOf[WSClient]
     val start = await(
-      ws.url(s"http://localhost:$port/testing")
+      ws.url(s"http://localhost:$port/testing/undefined")
         .post(Json.obj()))
 
-    start.status mustBe 201
-    noException should be thrownBy Json.parse(start.body).as[Suite]
-
-    val suite = Json.parse(start.body).as[Suite]
-    suite.id must not be empty
-    suite.subscription.endpoint must not be empty
-    suite.subscription.auth must not be empty
-    suite.subscription.auth must not be empty
-
-    get(suite.id) mustBe suite
-
-    val data = "test event"
-    val event = await(
-      ws.url(s"http://localhost:$port/testing/${suite.id}/events").post(data))
-
-    event.status mustBe 200
-    get(suite.id).events mustBe data :: Nil
-
-    val quit =
-      await(ws.url(s"http://localhost:$port/testing/${suite.id}").delete())
-
-    quit.status mustBe 204
-
-    val removed =
-      await(ws.url(s"http://localhost:$port/testing/${suite.id}").get())
-
-    removed.status mustBe 404
+    start.status mustBe 400
   }
 }

@@ -1,7 +1,8 @@
 package controllers
 
 import javax.inject.Inject
-import models.FirefoxSuiteService
+import models.Driver
+import models.SuiteService
 import modules.BrowserModule.TestingBrowser
 import play.api.Logger
 import play.api.libs.json.Json
@@ -11,14 +12,14 @@ import play.api.mvc.ControllerComponents
 
 import scala.util.control.NonFatal
 
-class SuiteApplication @Inject()(firefox: FirefoxSuiteService,
+class SuiteApplication @Inject()(service: SuiteService,
                                  browser: TestingBrowser,
                                  cc: ControllerComponents)
     extends AbstractController(cc) {
-  def start = Action { req =>
+  def start(driver: Driver) = Action { req =>
     try {
       val url = s"http://${req.host}"
-      val suite = firefox.start(url, browser.timeout)
+      val suite = service.start(url, browser.timeout, driver)
       Created(Json.toJson(suite))
     } catch {
       case NonFatal(e) =>
@@ -29,7 +30,7 @@ class SuiteApplication @Inject()(firefox: FirefoxSuiteService,
 
   def quit(id: String) = Action { _ =>
     try {
-      firefox.quit(id)
+      service.quit(id)
       new Status(NO_CONTENT)(Json.obj())
     } catch {
       case NonFatal(e) =>
@@ -40,7 +41,7 @@ class SuiteApplication @Inject()(firefox: FirefoxSuiteService,
 
   def get(id: String) = Action { _ =>
     try {
-      firefox.get(id) match {
+      service.get(id) match {
         case Some(v) => Ok(Json.toJson(v))
         case None    => NotFound(Json.obj("error" -> s"$id not found"))
       }
@@ -53,7 +54,7 @@ class SuiteApplication @Inject()(firefox: FirefoxSuiteService,
 
   def addEvent(id: String): Action[String] = Action(parse.text) { req =>
     try {
-      firefox.addEvent(id, req.body)
+      service.addEvent(id, req.body)
       Ok(Json.obj())
     } catch {
       case e: NoSuchElementException =>

@@ -2,14 +2,14 @@
 
 [![CircleCI](https://circleci.com/gh/nokamoto/webpush-testing-service.svg?style=svg)](https://circleci.com/gh/nokamoto/webpush-testing-service)
 
-[![overview](https://user-images.githubusercontent.com/4374383/46121454-b97cc680-c24e-11e8-9fe3-f72880c250b2.png)](https://user-images.githubusercontent.com/4374383/46121454-b97cc680-c24e-11e8-9fe3-f72880c250b2.png)
+[![overview](https://user-images.githubusercontent.com/4374383/46413266-84470b80-c75b-11e8-9743-ea9d79289ba6.png)](https://user-images.githubusercontent.com/4374383/46413266-84470b80-c75b-11e8-9743-ea9d79289ba6.png)
 
 
 - [Usage](#usage)
   - [Run](#run)
   - [Test](#test)
 - [API](#api)
-  - [POST /testing](#post-testing)
+  - [POST /testing/:driver](#post-testingdriver)
   - [GET /testing/:id](#get-testingid)
   - [DELETE /testing/:id](#delete-testingid)
 
@@ -30,9 +30,9 @@ docker run -p 9000:9000 nokamoto13/webpush-testing-service:0.0.0 -DapplicationSe
 
 ### Test
 
-1. Call `POST /testing` to start a new browser. This API returns _id_ and _subscription_.
+1. Call `POST /testing/:driver` to start a new browser. This API returns _id_ and _subscription_.
 
-    **`POST http://localhost:9000/testing`**
+    **`POST http://localhost:9000/testing/firefox`**
     ```json
     {
       "id":"f6cdb052-c412-426f-bcd6-3cc54b8a3903",
@@ -72,16 +72,22 @@ docker run -p 9000:9000 nokamoto13/webpush-testing-service:0.0.0 -DapplicationSe
 [Here](https://github.com/nokamoto/webpush-scala/blob/e735375fce8643acb67389844c43c1389573d598/src/test/scala/com/github/nokamoto/webpush/WebpushTestingServiceSpec.scala) is a concrete example test code in Scala.
 
 ### API
-#### POST /testing
+#### POST /testing/:driver
 Start a new browser.
+
+| Request | |
+| --- | --- |
+| driver | `firefox` or `chrome` |
 
 | Status |
 | --- |
 | 201 |
+| 400 if `:driver` undefined|
 
 | Response JSON Field | |
 | --- | --- |
 | id | an unique suite id |
+| driver | `firefox` or `chrome` |
 | subscription.endpoint | [PushSubscription.endpoint](https://www.w3.org/TR/push-api/#dom-pushsubscription-endpoint) |
 | subscription.auth | [PushSubscription.getKey('auth')](https://www.w3.org/TR/push-api/#dom-pushencryptionkeyname-p256dh) |
 | subscription.p256dh | [PushSubscription.getKey('p256dh')](https://www.w3.org/TR/push-api/#dom-pushencryptionkeyname-auth) |
@@ -96,6 +102,7 @@ Retrieve webpush messages that the browser received.
 
 | Response JSON Field | |
 | --- | --- |
+| driver | `firefox` or `chrome` |
 | events | a list of [PushEvent.data.text()](https://developer.mozilla.org/ja/docs/Web/API/PushEvent/data) |
 
 #### DELETE /testing/:id

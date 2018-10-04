@@ -1,7 +1,7 @@
 package modules
 
 import com.google.inject.AbstractModule
-import models.FirefoxSuiteService
+import models.SuiteService
 import modules.BrowserModule.TestingBrowser
 import play.api.Configuration
 import play.api.Environment
@@ -15,8 +15,7 @@ class BrowserModule(environment: Environment, configuration: Configuration)
   override def configure(): Unit = {
     val timeout = configuration.getMillis("browser.timeout").millis
     bind(classOf[TestingBrowser]).toInstance(TestingBrowser(timeout = timeout))
-    bind(classOf[FirefoxSuiteService])
-      .toInstance(new FirefoxSuiteService(TrieMap.empty))
+    bind(classOf[SuiteService]).toInstance(new SuiteService(TrieMap.empty))
   }
 }
 

@@ -2,7 +2,7 @@ version: 2
 jobs:
   build:
     docker:
-      - image: nokamoto13/geckodriver-scala:0.0.0
+      - image: nokamoto13/webdriver-scala:0.0.0
     steps:
       - restore_cache:
           key: sbt-cache-v2
